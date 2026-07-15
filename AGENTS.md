@@ -38,11 +38,14 @@ README.md
 package.json
 src/
   index.ts
+  macos-provider.ts
+  notification-provider.ts
+  notification-session.ts
 ```
 
-`src/index.ts` is the Pi extension entry point and the canonical implementation in this repository. `package.json` declares it explicitly under `pi.extensions`, so the `src` directory does not need to follow Pi's conventional `extensions` layout.
+`src/index.ts` is the Pi extension entry point and composition root. Session-scoped notification behaviour lives in `src/notification-session.ts`, while platform-specific delivery is implemented behind the provider contract. `package.json` declares `src/index.ts` explicitly under `pi.extensions`, so the `src` directory does not need to follow Pi's conventional `extensions` layout.
 
-Keep a single entry point while the extension remains small. If Linux support or platform integrations make the implementation larger, retain `src/index.ts` as the entry point and split platform-specific behaviour into focused modules such as `src/macos.ts` and `src/linux.ts`.
+Keep `src/index.ts` as the single entry point. Add future platform integrations as focused provider modules, such as `src/linux-provider.ts`.
 
 ## Important implementation details
 
