@@ -1,4 +1,4 @@
-# Pi Turn Notifications
+# Pi Opt-In
 
 A [Pi](https://github.com/earendil-works/pi-mono) extension that sends a notification when Pi has finished responding and is waiting for input.
 
@@ -11,7 +11,7 @@ Notifications are disabled by default and can be enabled independently for each 
 Copy and run:
 
 ```bash
-pi install git:github.com/danielronalds/pi-turn-notifications
+pi install git:github.com/danielronalds/pi-opt-in
 ```
 
 Restart Pi or run `/reload` in an existing Pi session after installation.
@@ -26,7 +26,7 @@ Restart Pi or run `/reload` in an existing Pi session after installation.
 Run:
 
 ```text
-/notify
+/opt-in
 ```
 
 Select **On** or **Off** in the menu. New sessions start with notifications disabled. State is retained when reloading or resuming the same session.

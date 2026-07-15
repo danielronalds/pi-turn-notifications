@@ -39,7 +39,7 @@ export default function (pi: ExtensionAPI) {
 		updateStatus(ctx);
 	}
 
-	pi.registerCommand("notify", {
+	pi.registerCommand("opt-in", {
 		description: "Enable or disable desktop notifications for this session",
 		handler: async (_args, ctx) => {
 			if (!ctx.hasUI) {
