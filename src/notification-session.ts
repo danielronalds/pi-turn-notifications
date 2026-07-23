@@ -60,7 +60,6 @@ export class NotificationSession {
 		}
 
 		if (!this.provider) {
-			console.error(`Desktop notifications are not supported on ${process.platform}`);
 			return;
 		}
 

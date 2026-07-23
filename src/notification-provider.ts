@@ -4,6 +4,11 @@ export interface Notification {
 	playSound: boolean;
 }
 
+export interface NotificationProviderFeatures {
+	sound: boolean;
+}
+
 export interface NotificationProvider {
+	getSupportedFeatures(): NotificationProviderFeatures;
 	sendNotification(notification: Notification): Promise<void>;
 }

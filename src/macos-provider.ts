@@ -14,6 +14,10 @@ end run
 export class MacosProvider implements NotificationProvider {
 	constructor(private readonly pi: Pick<ExtensionAPI, "exec">) {}
 
+	getSupportedFeatures() {
+		return { sound: true };
+	}
+
 	async sendNotification({ title, body, playSound }: Notification) {
 		await this.pi.exec("/usr/bin/osascript", ["-e", notificationScript, title, body, String(playSound)]);
 	}

@@ -4,8 +4,6 @@ A [Pi](https://github.com/earendil-works/pi-mono) extension that sends a notific
 
 Notifications are disabled by default and can be enabled independently for each Pi session.
 
-> This extension is very vibecoded. Do not expect perfection, it does what it says on the tin
-
 ## Install
 
 Copy and run:
@@ -18,7 +16,10 @@ Restart Pi or run `/reload` in an existing Pi session after installation.
 
 ### Requirements
 
-- macOS
+- macOS, or Linux with:
+  - `busctl`, normally provided by systemd
+  - A graphical user D-Bus session
+  - A Freedesktop-compatible notification service
 - Pi 0.80.6 or later
 
 ## Usage
@@ -29,10 +30,12 @@ Run:
 /opt-in
 ```
 
-Use the settings menu to enable or disable desktop notifications and their sound. New sessions start with notifications disabled and sound enabled. State is retained when reloading or resuming the same session.
+Use the settings menu to enable or disable desktop notifications. Providers may expose additional settings for supported features, such as notification sounds on macOS. New sessions start with notifications disabled. State is retained when reloading or resuming the same session.
 
 macOS may ask for permission to send notifications the first time the extension runs. Notification sounds may be suppressed by macOS notification settings or Focus mode.
 
+On Linux, notifications are sent silently through the standard Freedesktop notification service using `busctl`.
+
 ## Limitations
 
-Currently this extension only supports macOS, linux support will be added.
+Linux notifications require `busctl` and an active graphical notification service. Headless environments, containers without access to the user D-Bus, and ordinary SSH sessions are not supported.

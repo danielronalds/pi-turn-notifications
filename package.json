@@ -1,7 +1,7 @@
 {
   "name": "pi-opt-in",
   "version": "0.1.0",
-  "description": "Opt-in macOS notifications when a Pi agent response is ready.",
+  "description": "Opt-in desktop notifications when a Pi agent response is ready.",
   "author": "Daniel Ronalds",
   "license": "MIT",
   "repository": {
@@ -12,7 +12,9 @@
     "pi-package",
     "pi-extension",
     "macos",
+    "linux",
     "notifications",
+    "dbus",
     "opt-in"
   ],
   "peerDependencies": {

@@ -4,6 +4,7 @@ import {
 	type ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { Container, type SettingItem, SettingsList, Text } from "@earendil-works/pi-tui";
+import { LinuxProvider } from "./linux-provider.ts";
 import { MacosProvider } from "./macos-provider.ts";
 import {
 	NotificationSession,
@@ -15,6 +16,8 @@ function getNotificationProvider(pi: ExtensionAPI) {
 	switch (process.platform) {
 		case "darwin":
 			return new MacosProvider(pi);
+		case "linux":
+			return new LinuxProvider(pi);
 		default:
 			return undefined;
 	}
@@ -43,6 +46,11 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
+			if (!notificationProvider) {
+				ctx.ui.notify(`Desktop notifications are not supported on ${process.platform}`, "error");
+				return;
+			}
+
 			const items: SettingItem[] = [
 				{
 					id: "notifications",
@@ -51,14 +59,17 @@ export default function (pi: ExtensionAPI) {
 					currentValue: notifications.enabled ? "On" : "Off",
 					values: ["On", "Off"],
 				},
-				{
+			];
+
+			if (notificationProvider.getSupportedFeatures().sound) {
+				items.push({
 					id: "sound",
 					label: "Play sound",
-					description: "Play the default macOS notification sound.",
+					description: "Request a desktop notification sound.",
 					currentValue: notifications.soundEnabled ? "On" : "Off",
 					values: ["On", "Off"],
-				},
-			];
+				});
+			}
 
 			await ctx.ui.custom((tui, theme, _keybindings, done) => {
 				const container = new Container();

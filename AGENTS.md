@@ -16,9 +16,9 @@ The project is licensed under MIT, copyright Daniel Ronalds.
 
 ## Current behaviour
 
-- macOS is the only supported platform.
+- macOS and Linux are supported platforms.
 - Notifications are disabled by default for every new Pi session.
-- `/opt-in` opens a small settings UI for enabling or disabling notifications and their sound.
+- `/opt-in` opens a small settings UI for enabling or disabling notifications and provider-supported features.
 - Notification and sound settings are persisted in the session and restored after reloads and resumes.
 - State follows the active session branch and is restored after tree navigation.
 - A footer status is displayed while notifications are enabled.
@@ -27,8 +27,8 @@ The project is licensed under MIT, copyright Daniel Ronalds.
 - A notification is sent only when the settled run produced non-empty assistant text.
 - The title is the current directory basename enclosed in quotation marks.
 - The body is a whitespace-normalised copy of the assistant message, truncated to 200 Unicode characters.
-- Notification sound is enabled by default and can be disabled independently for each session.
-- Native notifications are sent through the built-in `/usr/bin/osascript` command.
+- Providers report their supported optional features. Notification sound is configurable on macOS and unsupported on Linux.
+- Native notifications are sent through the built-in `/usr/bin/osascript` command on macOS and the Freedesktop notification service via `busctl` on Linux.
 
 ## Repository structure
 
@@ -39,6 +39,7 @@ README.md
 package.json
 src/
   index.ts
+  linux-provider.ts
   macos-provider.ts
   notification-provider.ts
   notification-session.ts
@@ -46,7 +47,7 @@ src/
 
 `src/index.ts` is the Pi extension entry point and composition root. Session-scoped notification behaviour lives in `src/notification-session.ts`, while platform-specific delivery is implemented behind the provider contract. `package.json` declares `src/index.ts` explicitly under `pi.extensions`, so the `src` directory does not need to follow Pi's conventional `extensions` layout.
 
-Keep `src/index.ts` as the single entry point. Add future platform integrations as focused provider modules, such as `src/linux-provider.ts`.
+Keep `src/index.ts` as the single entry point. Add platform integrations as focused provider modules.
 
 ## Important implementation details
 
@@ -73,9 +74,11 @@ New sessions must continue to default to notifications being disabled.
 
 ### Notification execution
 
-Use `pi.exec()` with a command and separate argument array. Do not build a shell command containing the notification title or body. Passing values as AppleScript arguments avoids shell and AppleScript quoting problems.
+Use `pi.exec()` with a command and separate argument array. Do not build a shell command containing the notification title or body. Passing values as separate arguments avoids shell and platform-specific quoting problems.
 
-Keep a platform guard so unsupported systems do nothing rather than attempting to execute `osascript`.
+On Linux, call the standard `org.freedesktop.Notifications.Notify` method through `busctl --user`. Resolve `busctl` through `PATH` for compatibility with non-standard filesystem layouts. Send notifications without sound hints.
+
+Keep a platform guard so unsupported systems do nothing rather than attempting to execute a platform-specific notification command.
 
 ### Package dependencies
 
@@ -112,14 +115,14 @@ pi --list-models -e git:github.com/danielronalds/pi-opt-in
 Perform these manual checks in an interactive Pi session:
 
 1. Start a new session and confirm notifications are off.
-2. Run `/opt-in`, select On, and confirm the footer status appears.
+2. Run `/opt-in`, select On, and confirm the footer status appears. Confirm the sound setting appears only on providers that support it.
 3. Submit a prompt that uses tools and confirm intermediate tool turns do not notify.
 4. Confirm the final settled assistant response produces one notification.
 5. Run `/reload` and confirm the enabled state is restored.
 6. Resume the session and confirm the enabled state is restored.
 7. Select Off and confirm the footer status and desktop notifications stop.
 
-macOS may require notification or Automation permission during manual testing.
+macOS may require notification or Automation permission during manual testing. Linux testing requires `busctl`, a graphical user D-Bus session, and a Freedesktop-compatible notification service.
 
 ## Code and documentation conventions
 
@@ -143,9 +146,9 @@ The existing npm package `pi-nudge` is owned by another developer and provides s
 
 ## Known limitations and future work
 
-### Linux support
+### Linux environment support
 
-Linux support is planned but not implemented. Add it behind platform-specific behaviour without changing the macOS path. Prefer native tools that are commonly available, and document any required dependency.
+Linux notifications require `busctl`, an active graphical user D-Bus session, and a Freedesktop-compatible notification service. Headless environments, ordinary SSH sessions, and containers without access to the host user bus are not supported. A future fallback could use `notify-send` for non-systemd distributions where `busctl` is unavailable.
 
 ### Focus detection
 
